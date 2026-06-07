@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHIVE • Audio Vault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+        
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .logo-font { font-family: 'Space Grotesk', sans-serif; }
+
+        .audio-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .audio-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-zinc-900/90 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-yellow-400 rounded-3xl flex items-center justify-center">
+                    <i class="fa-solid fa-waveform text-zinc-950 text-3xl"></i>
+                </div>
+                <span class="logo-font text-4xl font-bold tracking-tighter text-yellow-300">ARCHIVE (((•))) Audio Vault</span>
+            </div>
+            <div class="relative w-96 hidden md:block">
+                <input id="searchInput" type="text" placeholder="Search recordings..." 
+                       class="w-full bg-zinc-800 border border-white/20 rounded-3xl py-3 px-6 pl-12 focus:outline-none focus:border-yellow-400">
+                <i class="fa-solid fa-magnifying-glass absolute left-5 top-3.5 text-zinc-400"></i>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-28 pb-12 max-w-7xl mx-auto px-6">
+        <h1 class="text-5xl md:text-6xl font-bold logo-font tracking-tighter text-center mb-3">
+            Recordings
+        </h1>
+        <p class="text-center text-zinc-400 mb-12">Complete Voice & Bayan Archive</p>
+
+        <div id="recordingsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Filled by JS -->
+        </div>
+    </div>
+
+    <!-- Simple Confirmation Modal -->
+    <div id="playerModal" class="fixed inset-0 bg-black/95 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-zinc-900 rounded-3xl w-full max-w-md overflow-hidden">
+            <div class="p-8 text-center">
+                <div class="w-20 h-20 mx-auto mb-6 bg-yellow-400/10 rounded-3xl flex items-center justify-center">
+                    <i class="fa-solid fa-headphones text-5xl text-yellow-400"></i>
+                </div>
+                
+                <div id="modalTitle" class="text-2xl font-semibold mb-2"></div>
+                <div class="text-zinc-400 mb-8">Will open in Google Drive where you can play the recording</div>
+
+                <button onclick="openInDrive()" 
+                        class="w-full bg-yellow-400 hover:bg-amber-300 text-zinc-950 font-semibold py-5 rounded-2xl flex items-center justify-center gap-3 text-lg transition-all">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Open & Play in Drive</span>
+                </button>
+
+                <button onclick="closePlayer()" 
+                        class="mt-4 text-zinc-400 hover:text-white transition">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-zinc-500 text-sm">
+                Developed &amp; Designed by 
+                <span class="text-yellow-300 font-medium">Developer Muhammad Ahmed Hashmi</span>
+            </p>
+            <p class="text-zinc-600 text-xs mt-2">
+                © 2026 • All Rights Reserved
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const recordings = [
+            { name: "Audio 20251018-214959.mp3", id: "17KQe6gbW0kG0ku1J7QVjcx2V1sMheBhv" },
+            { name: "Audio 20251019-055824.mp3", id: "13vc8reVC_8qfE1XySuaqPPFHuiQoQ7sC" },
+            { name: "Audio 20260112-103421.mp3", id: "11Qg39nlFTCnruGmlb61ujj2wrrV9kHiT" },
+            { name: "Audio 20260112-114035.mp3", id: "1LXlVA8-kf94fF9qzDkdpIXsqe8KmKfIB" },
+            { name: "Audio 20260112-114111.mp3", id: "10h9AH6oAy06-iq32OUh2MXCqQpHB4SpT" },
+            { name: "Audio 20260123-130555.mp3", id: "19RIWIBOGsQtpfMkt2Ob17NnlvYcfRWUM" },
+            { name: "Audio 20260123-135200.mp3", id: "1pxlsTx4fLRXu-uxkxkN5NFXseee-VkvV" },
+            { name: "Audio 20260128-070803.mp3", id: "1fWwA_cPJQWc9bcbPd4wqqy4ovZt_6AZ5" },
+            { name: "Audio 20260131-071126.mp3", id: "1FYgWZfEbNAdL1BDkTZ74ZjmSrz2Cm2dQ" },
+            { name: "Audio 20260207-165036.mp3", id: "1H5XjTjsvn2MQCIf02XBQoCXqkyki4RRM" },
+            { name: "Audio 20260209-142753.mp3", id: "1oiHP1vOideFF5jxtFbi2CN8KjBK9_fCM" },
+            { name: "Audio 20260209-145945.mp3", id: "1Yzjy0D7SGb9iGdRwsHzwqmtaZKglgGOT" },
+            { name: "Audio 20260209-150646.mp3", id: "1PQuK3AVpsdI0LsN1-_xT8CwlXaW18nRO" },
+            { name: "Audio 20260209-182649.mp3", id: "1wsR1j8yrsOOvKGWyCkRzJ6RDW7Ymni08" },
+            { name: "Audio 20260209-183046.mp3", id: "186HjzMhklsGcby8XZwH6KcWC4o-iUUiH" },
+            { name: "Audio 20260211-103342.mp3", id: "1Lj0-lxfArAQPllY69fIwP26foGvX9Xh5" },
+            { name: "Audio 20260301-081904.mp3", id: "1qUXRkCxWTLnWtIIGDLvzKFe4zPTY0Cr_" },
+            { name: "Audio 20260317-203946.mp3", id: "1pNq3CO8zOD1PKLHQj6pUV9ua2X7g0UDN" },
+            { name: "Audio 20260317-205610.mp3", id: "10UnqSs63P4aVEWtGQcBVopPozSFzbEY6" },
+            { name: "Bayan e Fajr.mp3", id: "1PZpo2FhD_wyj4VGqxaWkM-UQqzxfJhKS" },
+            { name: "Dhai ghnta taleem by Maulana Ibadullah.mp3", id: "1HkRBIXjk_AbFRwiHg1ZiCNvl8ov-GGDG" },
+            { name: "Faislabad Shab e jumma Bayan.mp3", id: "1QnQH_HEIOd6PpaPx0MjTYjcuqaNSZEnR" },
+            { name: "karguzari.mp3", id: "1n6A7sziyWEtmFfhKwilDg6GLW4qZ2Y3Y" }
+        ];
+
+        let currentFileId = null;
+
+        function createCard(rec) {
+            const card = document.createElement('div');
+            card.className = `audio-card bg-zinc-900 border border-white/10 rounded-3xl p-6 cursor-pointer group`;
+            card.innerHTML = `
+                <div class="flex gap-5">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner">
+                        <i class="fa-solid fa-headphones text-4xl text-zinc-950"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium text-lg leading-tight mb-2 line-clamp-2 group-hover:text-yellow-300">
+                            ${rec.name}
+                        </div>
+                        <div onclick="event.stopImmediatePropagation(); playRecording('${rec.id}', '${rec.name}')" 
+                             class="mt-6 inline-flex items-center gap-3 text-yellow-400 hover:text-yellow-300 transition-colors">
+                            <i class="fa-solid fa-play"></i>
+                            <span class="font-medium">Play Now</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            card.addEventListener('click', () => playRecording(rec.id, rec.name));
+            return card;
+        }
+
+        function playRecording(fileId, title) {
+            currentFileId = fileId;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('playerModal').classList.remove('hidden');
+            document.getElementById('playerModal').classList.add('flex');
+        }
+
+        function openInDrive() {
+            if (!currentFileId) return;
+            const driveUrl = `https://drive.google.com/file/d/${currentFileId}/view`;
+            window.open(driveUrl, '_blank');
+            closePlayer();
+        }
+
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = recordings.filter(r => r.name.toLowerCase().includes(term));
+            render(filtered);
+        });
+
+        function render(list) {
+            const container = document.getElementById('recordingsGrid');
+            container.innerHTML = '';
+            list.forEach(rec => container.appendChild(createCard(rec)));
+        }
+
+        window.onload = () => render(recordings);
+    </script>
+</body>
+</html>
